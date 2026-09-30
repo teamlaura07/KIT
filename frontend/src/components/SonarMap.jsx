@@ -14,6 +14,8 @@ import {
   getDemoStatus, getDemoVessels, getDemoTracks, getDemoAlerts,
   syncDemoGeofences, connectAisDemoWebSocket
 } from '../services/aisDemoApi';
+import { useAis } from '../context/AisContext';
+import shippingLanesData from '../data/shipping-lanes.json';
 
 const SEVERITY_CONFIG = {
   EXTREME: {
@@ -133,6 +135,7 @@ export function SonarMap({
   const tileLayerRef = useRef(null);
   const labelLayerRef = useRef(null);
   const seamarksLayerRef = useRef(null);
+  const seaRoutesGroupRef = useRef(null);
   const markersGroupRef = useRef(null);
   const geofencesGroupRef = useRef(null);
   const vesselsGroupRef = useRef(null);
@@ -146,15 +149,34 @@ export function SonarMap({
   const [enablePulsing, setEnablePulsing] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Live AIS Layer States
+  // Live AIS & Sea Routes Layer States
   const [showLiveVessels, setShowLiveVessels] = useState(true);
   const [showVesselTracks, setShowVesselTracks] = useState(true);
-  const [vesselsMap, setVesselsMap] = useState({});
-  const [tracksMap, setTracksMap] = useState({});
-  const [aisStatus, setAisStatus] = useState('OFFLINE');
-  const [aisLastUpdate, setAisLastUpdate] = useState(null);
-  const [activeAlerts, setActiveAlerts] = useState([]);
+  const [showSeaRoutes, setShowSeaRoutes] = useState(true);
   const [mapMoveTick, setMapMoveTick] = useState(0);
+
+  // Global live AIS state (persists across page changes)
+  const aisCtx = useAis();
+
+  // Local DEMO-only state (isolated per mount)
+  const [demoVesselsMap, setDemoVesselsMap] = useState({});
+  const [demoTracksMap, setDemoTracksMap] = useState({});
+  const [demoStatus, setDemoStatus] = useState('OFFLINE');
+  const [demoLastUpdate, setDemoLastUpdate] = useState(null);
+  const [demoAlerts, setDemoAlerts] = useState([]);
+
+  // Derived: which state to actually render
+  const isDemo = aisMode === 'DEMO';
+  const vesselsMap   = isDemo ? demoVesselsMap   : aisCtx.vesselsMap;
+  const tracksMap    = isDemo ? demoTracksMap    : aisCtx.tracksMap;
+  const aisStatus    = isDemo ? demoStatus       : aisCtx.aisStatus;
+  const aisLastUpdate = isDemo ? demoLastUpdate  : aisCtx.aisLastUpdate;
+  const activeAlerts  = isDemo ? demoAlerts      : aisCtx.activeAlerts;
+  const setActiveAlerts = isDemo
+    ? setDemoAlerts
+    : aisCtx.setActiveAlerts;
+
+  const [mapMoveTick2] = useState(0); // unused placeholder
 
   const hasAutoFittedRef = useRef(false);
   const prevTargetIdRef = useRef(null);
@@ -203,7 +225,7 @@ export function SonarMap({
 
     const map = L.map(mapContainerRef.current, {
       center: [initialLat, initialLng],
-      zoom: 16,
+      zoom: 11,
       minZoom: 2,
       maxZoom: 20,
       worldCopyJump: true,
@@ -238,7 +260,8 @@ export function SonarMap({
     }
     seamarksLayerRef.current = seamarksLayer;
 
-    // Layer Groups: 1. Debris markers, 2. Debris Geofences, 3. Live AIS Vessels, 4. AIS Trajectory Tracks
+    // Layer Groups: 0. Sea Routes (Beneath), 1. Debris markers, 2. Debris Geofences, 3. Live AIS Vessels, 4. AIS Trajectory Tracks
+    seaRoutesGroupRef.current = L.featureGroup().addTo(map);
     markersGroupRef.current = L.featureGroup().addTo(map);
     geofencesGroupRef.current = L.featureGroup().addTo(map);
     tracksGroupRef.current = L.featureGroup().addTo(map);
@@ -286,6 +309,35 @@ export function SonarMap({
     }
   }, [showSeamarks]);
 
+  // 3b. Render Global Sea Voyage Routes Layer (Grey #9CA3AF, weight 1.5, opacity 0.6)
+  useEffect(() => {
+    if (!mapInstanceRef.current || !seaRoutesGroupRef.current) return;
+    seaRoutesGroupRef.current.clearLayers();
+
+    if (!showSeaRoutes) return;
+
+    const seaRoutesLayer = L.geoJSON(shippingLanesData, {
+      style: {
+        color: '#9CA3AF',
+        weight: 1.5,
+        opacity: 0.6,
+        fill: false,
+        lineCap: 'round',
+        lineJoin: 'round',
+      },
+      onEachFeature: (feature, layer) => {
+        if (feature.properties && feature.properties.name) {
+          layer.bindTooltip(feature.properties.name, {
+            sticky: true,
+            className: 'bg-ocean-950/90 text-slate-300 text-xs px-2 py-1 border border-slate-700 rounded shadow-md font-mono',
+          });
+        }
+      },
+    });
+
+    seaRoutesLayer.addTo(seaRoutesGroupRef.current);
+  }, [showSeaRoutes]);
+
   // 4. Handle Container Resizing
   useEffect(() => {
     if (mapInstanceRef.current) {
@@ -319,204 +371,98 @@ export function SonarMap({
     let isMounted = true;
     const isDemo = aisMode === 'DEMO';
 
-    // Clear previous vessels & tracks when switching modes
-    setVesselsMap({});
-    setTracksMap({});
-    setActiveAlerts([]);
+    if (!isDemo) {
+      // In LIVE mode, global AisContext maintains state and WebSocket continuously.
+      if (onAlertsChange) {
+        onAlertsChange(aisCtx.activeAlerts);
+      }
+      return;
+    }
+
+    // DEMO mode local setup
+    setDemoVesselsMap({});
+    setDemoTracksMap({});
+    setDemoAlerts([]);
     if (onAlertsChange) onAlertsChange([]);
 
-    const fetchInitialData = async () => {
+    const fetchDemoData = async () => {
       try {
-        if (isDemo) {
-          const [statusData, vesselsData, tracksData, alertsData] = await Promise.all([
-            getDemoStatus().catch(() => null),
-            getDemoVessels().catch(() => []),
-            getDemoTracks().catch(() => ({})),
-            getDemoAlerts().catch(() => []),
-          ]);
+        const [statusData, vesselsData, tracksData, alertsData] = await Promise.all([
+          getDemoStatus().catch(() => null),
+          getDemoVessels().catch(() => []),
+          getDemoTracks().catch(() => ({})),
+          getDemoAlerts().catch(() => []),
+        ]);
 
-          if (!isMounted) return;
+        if (!isMounted) return;
 
-          if (statusData) {
-            setAisStatus('DEMO_ACTIVE');
-            setAisLastUpdate(new Date().toISOString());
-          }
+        if (statusData) {
+          setDemoStatus('DEMO_ACTIVE');
+          setDemoLastUpdate(new Date().toISOString());
+        }
 
-          if (Array.isArray(vesselsData)) {
-            const mapObj = {};
-            vesselsData.forEach((v) => {
-              if (v && v.mmsi) mapObj[v.mmsi] = v;
-            });
-            setVesselsMap(mapObj);
-          }
+        if (Array.isArray(vesselsData)) {
+          const mapObj = {};
+          vesselsData.forEach((v) => {
+            if (v && v.mmsi) mapObj[v.mmsi] = v;
+          });
+          setDemoVesselsMap(mapObj);
+        }
 
-          if (tracksData) {
-            setTracksMap(tracksData);
-          }
+        if (tracksData) {
+          setDemoTracksMap(tracksData);
+        }
 
-          if (Array.isArray(alertsData)) {
-            setActiveAlerts(alertsData);
-            if (onAlertsChange) onAlertsChange(alertsData);
-          }
-        } else {
-          const [statusData, vesselsData, tracksData, alertsData] = await Promise.all([
-            getAisStatus().catch(() => null),
-            getAisVessels().catch(() => []),
-            getAisTracks().catch(() => ({})),
-            getAisAlerts().catch(() => []),
-          ]);
-
-          if (!isMounted) return;
-
-          if (statusData) {
-            setAisStatus(statusData.status || 'OFFLINE');
-            setAisLastUpdate(statusData.last_update);
-          }
-
-          if (Array.isArray(vesselsData)) {
-            const mapObj = {};
-            vesselsData.forEach((v) => {
-              if (v && v.mmsi) mapObj[v.mmsi] = v;
-            });
-            setVesselsMap(mapObj);
-          }
-
-          if (tracksData) {
-            setTracksMap(tracksData);
-          }
-
-          if (Array.isArray(alertsData)) {
-            setActiveAlerts(alertsData);
-            if (onAlertsChange) onAlertsChange(alertsData);
-          }
+        if (Array.isArray(alertsData)) {
+          setDemoAlerts(alertsData);
+          if (onAlertsChange) onAlertsChange(alertsData);
         }
       } catch (err) {
-        console.debug('AIS initial fetch notice:', err);
+        console.debug('Demo AIS initial fetch notice:', err);
       }
     };
 
-    fetchInitialData();
+    fetchDemoData();
 
-    // WebSocket real-time subscription
-    let wsClient = null;
+    const wsClient = connectAisDemoWebSocket({
+      onSnapshot: (data) => {
+        if (!isMounted) return;
+        if (data.is_running !== undefined) {
+          setDemoStatus(data.is_running ? 'DEMO_ACTIVE' : 'DEMO_PAUSED');
+        }
+        if (data.timestamp) setDemoLastUpdate(data.timestamp);
 
-    if (isDemo) {
-      wsClient = connectAisDemoWebSocket({
-        onSnapshot: (data) => {
-          if (!isMounted) return;
-          if (data.is_running !== undefined) {
-            setAisStatus(data.is_running ? 'DEMO_ACTIVE' : 'DEMO_PAUSED');
-          }
-          if (data.timestamp) setAisLastUpdate(data.timestamp);
-
-          if (Array.isArray(data.vessels)) {
-            const mapObj = {};
-            data.vessels.forEach((v) => {
-              if (v && v.mmsi) mapObj[v.mmsi] = v;
-            });
-            setVesselsMap(mapObj);
-          }
-
-          if (data.tracks) {
-            setTracksMap(data.tracks);
-          }
-
-          if (Array.isArray(data.alerts)) {
-            setActiveAlerts(data.alerts);
-            if (onAlertsChange) onAlertsChange(data.alerts);
-          }
-        },
-        onDisconnected: () => {
-          if (!isMounted) return;
-          setAisStatus('DEMO_OFFLINE');
-        },
-      });
-    } else {
-      wsClient = connectAisWebSocket({
-        onInitialState: (data) => {
-          if (!isMounted) return;
-          if (data.status) setAisStatus(data.status);
-          if (data.timestamp) setAisLastUpdate(data.timestamp);
-
-          if (Array.isArray(data.vessels)) {
-            const mapObj = {};
-            data.vessels.forEach((v) => {
-              if (v && v.mmsi) mapObj[v.mmsi] = v;
-            });
-            setVesselsMap(mapObj);
-          }
-
-          if (Array.isArray(data.alerts)) {
-            setActiveAlerts(data.alerts);
-            if (onAlertsChange) onAlertsChange(data.alerts);
-          }
-        },
-        onStatusChange: (newStatus) => {
-          if (!isMounted) return;
-          setAisStatus(newStatus);
-        },
-        onVesselUpdate: (vessel) => {
-          if (!isMounted || !vessel || !vessel.mmsi) return;
-          setVesselsMap((prev) => ({
-            ...prev,
-            [vessel.mmsi]: vessel,
-          }));
-          setAisLastUpdate(vessel.timestamp || new Date().toISOString());
-
-          // Append to tracks locally
-          setTracksMap((prev) => {
-            const existing = prev[vessel.mmsi] || [];
-            const newPoint = {
-              latitude: vessel.latitude,
-              longitude: vessel.longitude,
-              timestamp: vessel.timestamp,
-              speed_knots: vessel.speed_knots,
-              course_deg: vessel.course_deg,
-            };
-            const updated = [...existing.slice(-99), newPoint];
-            return {
-              ...prev,
-              [vessel.mmsi]: updated,
-            };
+        if (Array.isArray(data.vessels)) {
+          const mapObj = {};
+          data.vessels.forEach((v) => {
+            if (v && v.mmsi) mapObj[v.mmsi] = v;
           });
-        },
-        onProximityAlert: (alert) => {
-          if (!isMounted || !alert) return;
-          setActiveAlerts((prev) => {
-            const filtered = prev.filter(
-              (a) => !(a.vessel_mmsi === alert.vessel_mmsi && a.detection_id === alert.detection_id)
-            );
-            const updated = [...filtered, alert];
-            if (onAlertsChange) onAlertsChange(updated);
-            return updated;
-          });
-        },
-        onProximityClear: (alertId) => {
-          if (!isMounted || !alertId) return;
-          setActiveAlerts((prev) => {
-            const updated = prev.filter(
-              (a) => `${a.vessel_mmsi}_${a.detection_id}` !== alertId
-            );
-            if (onAlertsChange) onAlertsChange(updated);
-            return updated;
-          });
-        },
-        onDisconnected: () => {
-          if (!isMounted) return;
-          setAisStatus('CONNECTING');
-        },
-      });
-    }
+          setDemoVesselsMap(mapObj);
+        }
 
-    // Background interval to refresh status
-    const interval = setInterval(fetchInitialData, 10000);
+        if (data.tracks) {
+          setDemoTracksMap(data.tracks);
+        }
+
+        if (Array.isArray(data.alerts)) {
+          setDemoAlerts(data.alerts);
+          if (onAlertsChange) onAlertsChange(data.alerts);
+        }
+      },
+      onDisconnected: () => {
+        if (!isMounted) return;
+        setDemoStatus('DEMO_OFFLINE');
+      },
+    });
+
+    const interval = setInterval(fetchDemoData, 10000);
 
     return () => {
       isMounted = false;
       clearInterval(interval);
       if (wsClient) wsClient.disconnect();
     };
-  }, [aisMode]);
+  }, [aisMode, aisCtx.activeAlerts]);
 
   // 7. Render Existing Debris Markers (Layer 1) and Dynamic Geofences (Layer 2) - STRICTLY PRESERVED
   useEffect(() => {
@@ -662,9 +608,13 @@ export function SonarMap({
     const isDemo = aisMode === 'DEMO';
     const vesselList = Object.values(vesselsMap);
     const bounds = mapInstanceRef.current.getBounds();
+    const MAX_VISIBLE = 500;
     const visibleVessels = bounds && bounds.isValid()
-      ? vesselList.filter((v) => bounds.pad(0.25).contains([v.latitude, v.longitude])).slice(0, 350)
-      : vesselList.slice(0, 350);
+      ? vesselList.filter((v) => {
+          if (typeof v.latitude !== 'number' || typeof v.longitude !== 'number') return false;
+          return bounds.pad(3.0).contains([v.latitude, v.longitude]);
+        }).slice(0, MAX_VISIBLE)
+      : vesselList.filter((v) => typeof v.latitude === 'number' && typeof v.longitude === 'number').slice(0, MAX_VISIBLE);
 
     visibleVessels.forEach((v) => {
       const isSelected = selectedVesselMmsi === v.mmsi;
@@ -915,6 +865,20 @@ export function SonarMap({
               <span>Tracks: {showVesselTracks ? 'ON' : 'OFF'}</span>
             </button>
           )}
+
+          {/* Sea Routes Layer Toggle */}
+          <button
+            onClick={() => setShowSeaRoutes((prev) => !prev)}
+            title="Toggle Global Sea Voyage Routes Layer"
+            className={`px-3 py-1 rounded-full border transition text-[11px] font-semibold flex items-center space-x-1 whitespace-nowrap ${
+              showSeaRoutes
+                ? 'bg-slate-800/90 border-slate-400 text-slate-200 shadow-sm'
+                : 'bg-[#0e1726] border-border-tactical text-muted-slate hover:text-starlight'
+            }`}
+          >
+            <Navigation className="w-3.5 h-3.5 text-slate-300" />
+            <span>Sea Routes: {showSeaRoutes ? 'ON' : 'OFF'}</span>
+          </button>
 
           {/* Geofences Toggle */}
           <button

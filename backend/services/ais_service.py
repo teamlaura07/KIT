@@ -814,8 +814,8 @@ class AisService:
             uptime_seconds=round(time.time() - self._start_time, 1),
         )
 
-    def get_active_vessels(self) -> List[VesselState]:
-        """Returns list of normalized vessel states with live staleness calculations."""
+    def get_active_vessels(self, limit: int = 500) -> List[VesselState]:
+        """Returns list of normalized vessel states capped to limit (default 500)."""
         now = time.time()
         results: List[VesselState] = []
         
@@ -829,7 +829,9 @@ class AisService:
             v_dict["last_seen_seconds_ago"] = round(elapsed, 1)
             results.append(VesselState(**v_dict))
             
-        return results
+        # Sort by most recent update first and limit to 500 vessels
+        results.sort(key=lambda x: x.last_seen_seconds_ago or 0)
+        return results[:limit]
 
     def get_vessel_tracks(self) -> Dict[str, List[Dict[str, Any]]]:
         """Returns recent trajectory points for each tracked vessel."""
@@ -869,14 +871,16 @@ class AisService:
     def set_api_key(self, api_key: str):
         """Sets or updates the AISStream API Key and triggers a remote connection attempt."""
         api_key = (api_key or "").strip()
+        if not api_key:
+            logger.warning("set_api_key called with empty key — ignoring to preserve existing AISStream connection.")
+            return
         settings.AISSTREAM_API_KEY = api_key
         settings.AIS_API_KEY = api_key
         logger.info(f"AISStream API Key updated (length: {len(api_key)}). Restarting remote stream listener...")
         if self._running:
             if hasattr(self, '_remote_task') and self._remote_task:
                 self._remote_task.cancel()
-            if api_key:
-                self._remote_task = asyncio.create_task(self._remote_stream_loop(api_key))
+            self._remote_task = asyncio.create_task(self._remote_stream_loop(api_key))
 
     async def _remote_stream_loop(self, api_key: str):
         """Asynchronous worker listening to upstream wss://stream.aisstream.io/v0/stream."""

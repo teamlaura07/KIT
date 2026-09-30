@@ -35,13 +35,14 @@ async def get_ais_status(
 @router.get(
     "/vessels",
     response_model=List[VesselState],
-    summary="Get all currently tracked AIS vessels in the survey area",
+    summary="Get currently tracked AIS vessels (capped to 500)",
 )
 async def get_tracked_vessels(
+    limit: int = Query(500, ge=1, le=10000, description="Max vessels to return"),
     service: AisService = Depends(get_ais_service),
 ) -> List[VesselState]:
-    """Returns normalized live vessel states for map rendering."""
-    return service.get_active_vessels()
+    """Returns normalized live vessel states for map rendering, limited to specified count (default 500)."""
+    return service.get_active_vessels(limit=limit)
 
 
 @router.get(

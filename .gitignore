@@ -30,8 +30,15 @@ yarn-error.log*
 # Database & Runtime Uploads
 *.db
 *.sqlite3
+*.db.bak
 data/uploads/*
 !data/uploads/.gitkeep
+
+# ML Model Weights & Generated Artifacts
+*.pt
+ml/weights/
+PROJECT_FILE_INVENTORY_REPORT.*
+SAMUDRA_RAKSHAK_COMPLETE_TECH_SPEC.*
 
 # Operating System & Editors
 .DS_Store

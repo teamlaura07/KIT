@@ -26,7 +26,7 @@ const DashboardShell = ({ children, activeTab, onTabChange, operator, onSignOut 
         <div
           className="absolute inset-0 w-full h-full bg-cover bg-center opacity-45 scale-[1.01] transition-transform duration-1000 ease-out"
           style={{
-            backgroundImage: `url("https://lh3.googleusercontent.com/aida-public/AB6AXuBdgkuyUGVMq_xBPIQK3uldPSNftj6mVO-bk5IWDAf2k05YlW1PWvRJVb9ctX6VfAm2n_359OA1NXB1jPI32b5a6e9ODY5fd8YjTBp066R6SgxMDTBbHTi091xrcMNJV2rVDbhrkRxuswys59t9nIhgS2rtd4zQVOiK2S_jb6icHHNcXAEwa2P9IHTqCSUI-MxdS3yjQ8hqU6L4MXBWRI-0cp_RABrEWiXKPNrj81JjP55KP2SEw_Ww")`
+            backgroundImage: `url("https://lh3.googleusercontent.com/aida-public/AB6AXuCDUtIk5NQgsZH92UBrao7zA6KjlpiovPmFvLE2T_STJ7bS7EPCX-Nf0kIxX2b5PKoSl6ZXU5ygH7aYvYgSxA_dputMip8Nyk4mmLRugs9w50JqaIlGb5ccOlP0Wdl4US6w7EowC-PWeSeox2YZaSvoCMb-VdC0MODRICXwoFrViIDkldOUFwlRgkUQxhfqHxeJZ0IHlRHgs5_HadBn-5XE2H71Wlj5CCil_t553ZoaxlIL2olL0reljsmNMQLKhH4jcAU"), url("/tactical_underwater_backdrop.png")`
           }}
         />
         {/* Scrim layers for deep oceanic contrast & Chakra Navy tint */}

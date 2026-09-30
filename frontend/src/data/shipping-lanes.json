@@ -1,0 +1,733 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Asia-Europe via Suez",
+        "category": "Global Shipping Lane"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            121.5,
+            31.2
+          ],
+          [
+            122.5,
+            25.0
+          ],
+          [
+            120.0,
+            14.5
+          ],
+          [
+            109.0,
+            10.0
+          ],
+          [
+            104.5,
+            1.3
+          ],
+          [
+            101.5,
+            2.8
+          ],
+          [
+            95.0,
+            6.0
+          ],
+          [
+            80.0,
+            5.8
+          ],
+          [
+            73.0,
+            8.0
+          ],
+          [
+            60.0,
+            14.0
+          ],
+          [
+            51.0,
+            12.0
+          ],
+          [
+            43.5,
+            12.6
+          ],
+          [
+            40.0,
+            18.0
+          ],
+          [
+            34.0,
+            27.5
+          ],
+          [
+            32.3,
+            29.9
+          ],
+          [
+            32.3,
+            31.3
+          ],
+          [
+            25.0,
+            34.5
+          ],
+          [
+            15.0,
+            36.0
+          ],
+          [
+            0.0,
+            36.5
+          ],
+          [
+            -5.4,
+            35.9
+          ],
+          [
+            -9.5,
+            38.7
+          ],
+          [
+            -9.0,
+            43.5
+          ],
+          [
+            -5.0,
+            48.5
+          ],
+          [
+            1.5,
+            50.5
+          ],
+          [
+            4.0,
+            51.9
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Trans-Pacific Northern Route",
+        "category": "Global Shipping Lane"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            121.5,
+            31.2
+          ],
+          [
+            130.0,
+            33.0
+          ],
+          [
+            145.0,
+            38.0
+          ],
+          [
+            165.0,
+            44.0
+          ],
+          [
+            180.0,
+            47.0
+          ],
+          [
+            -165.0,
+            48.0
+          ],
+          [
+            -145.0,
+            47.0
+          ],
+          [
+            -130.0,
+            45.0
+          ],
+          [
+            -122.5,
+            37.8
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Trans-Pacific Central Route",
+        "category": "Global Shipping Lane"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            121.5,
+            31.2
+          ],
+          [
+            140.0,
+            30.0
+          ],
+          [
+            160.0,
+            25.0
+          ],
+          [
+            180.0,
+            22.0
+          ],
+          [
+            -160.0,
+            21.0
+          ],
+          [
+            -140.0,
+            20.0
+          ],
+          [
+            -118.2,
+            33.7
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Trans-Atlantic North Route",
+        "category": "Global Shipping Lane"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -74.0,
+            40.5
+          ],
+          [
+            -60.0,
+            42.0
+          ],
+          [
+            -45.0,
+            46.0
+          ],
+          [
+            -30.0,
+            49.0
+          ],
+          [
+            -15.0,
+            50.0
+          ],
+          [
+            -5.0,
+            48.5
+          ],
+          [
+            4.0,
+            51.9
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Asia-Europe via Cape of Good Hope",
+        "category": "Global Shipping Lane"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            104.5,
+            1.3
+          ],
+          [
+            95.0,
+            6.0
+          ],
+          [
+            80.0,
+            5.8
+          ],
+          [
+            60.0,
+            -5.0
+          ],
+          [
+            45.0,
+            -15.0
+          ],
+          [
+            35.0,
+            -25.0
+          ],
+          [
+            20.0,
+            -35.0
+          ],
+          [
+            10.0,
+            -30.0
+          ],
+          [
+            0.0,
+            -15.0
+          ],
+          [
+            -15.0,
+            0.0
+          ],
+          [
+            -20.0,
+            15.0
+          ],
+          [
+            -15.0,
+            30.0
+          ],
+          [
+            -9.5,
+            38.7
+          ],
+          [
+            -5.0,
+            48.5
+          ],
+          [
+            4.0,
+            51.9
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Strait of Hormuz to Asia Trunk",
+        "category": "Global Shipping Lane"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            50.1,
+            26.5
+          ],
+          [
+            56.4,
+            26.6
+          ],
+          [
+            58.5,
+            24.5
+          ],
+          [
+            65.0,
+            20.0
+          ],
+          [
+            72.8,
+            18.9
+          ],
+          [
+            75.0,
+            11.0
+          ],
+          [
+            80.0,
+            5.8
+          ],
+          [
+            95.0,
+            6.0
+          ],
+          [
+            104.5,
+            1.3
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Panama Canal to US East Coast & Europe",
+        "category": "Global Shipping Lane"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -118.2,
+            33.7
+          ],
+          [
+            -105.0,
+            20.0
+          ],
+          [
+            -90.0,
+            10.0
+          ],
+          [
+            -79.5,
+            8.9
+          ],
+          [
+            -79.9,
+            9.3
+          ],
+          [
+            -75.0,
+            15.0
+          ],
+          [
+            -70.0,
+            18.5
+          ],
+          [
+            -65.0,
+            25.0
+          ],
+          [
+            -74.0,
+            40.5
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Cape Horn / South America Route",
+        "category": "Global Shipping Lane"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -43.1,
+            -22.9
+          ],
+          [
+            -55.0,
+            -35.0
+          ],
+          [
+            -65.0,
+            -45.0
+          ],
+          [
+            -67.0,
+            -56.0
+          ],
+          [
+            -75.0,
+            -45.0
+          ],
+          [
+            -72.0,
+            -33.0
+          ],
+          [
+            -80.0,
+            -10.0
+          ],
+          [
+            -79.5,
+            8.9
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "East Asia to Australia",
+        "category": "Global Shipping Lane"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            121.5,
+            31.2
+          ],
+          [
+            125.0,
+            15.0
+          ],
+          [
+            130.0,
+            0.0
+          ],
+          [
+            140.0,
+            -10.0
+          ],
+          [
+            142.5,
+            -10.5
+          ],
+          [
+            153.0,
+            -27.5
+          ],
+          [
+            151.2,
+            -33.8
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "South Indian Ocean (Cape to Australia)",
+        "category": "Global Shipping Lane"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            20.0,
+            -35.0
+          ],
+          [
+            40.0,
+            -38.0
+          ],
+          [
+            70.0,
+            -38.0
+          ],
+          [
+            100.0,
+            -35.0
+          ],
+          [
+            115.6,
+            -32.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Mediterranean Trunk Route",
+        "category": "Global Shipping Lane"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -5.4,
+            35.9
+          ],
+          [
+            5.3,
+            43.3
+          ],
+          [
+            14.5,
+            35.9
+          ],
+          [
+            23.0,
+            37.9
+          ],
+          [
+            26.2,
+            40.0
+          ],
+          [
+            29.0,
+            41.0
+          ],
+          [
+            35.0,
+            43.5
+          ],
+          [
+            37.8,
+            44.7
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Arctic Northern Sea Route",
+        "category": "Global Shipping Lane"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            4.0,
+            51.9
+          ],
+          [
+            10.0,
+            60.0
+          ],
+          [
+            20.0,
+            70.0
+          ],
+          [
+            40.0,
+            72.0
+          ],
+          [
+            70.0,
+            73.0
+          ],
+          [
+            110.0,
+            75.0
+          ],
+          [
+            170.0,
+            70.0
+          ],
+          [
+            -169.0,
+            65.5
+          ],
+          [
+            -170.0,
+            55.0
+          ],
+          [
+            140.0,
+            35.0
+          ],
+          [
+            121.5,
+            31.2
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Gulf of Mexico & Caribbean Route",
+        "category": "Global Shipping Lane"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -95.3,
+            29.7
+          ],
+          [
+            -89.0,
+            28.5
+          ],
+          [
+            -83.0,
+            23.5
+          ],
+          [
+            -74.0,
+            22.0
+          ],
+          [
+            -65.0,
+            18.0
+          ],
+          [
+            -61.5,
+            10.5
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bay of Bengal Maritime Route",
+        "category": "Global Shipping Lane"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            80.0,
+            13.1
+          ],
+          [
+            85.0,
+            15.0
+          ],
+          [
+            92.8,
+            11.6
+          ],
+          [
+            98.0,
+            7.8
+          ],
+          [
+            104.5,
+            1.3
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Kolkata - Vizag - Palk Strait - Colombo Route",
+        "category": "Global Shipping Lane"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            88.3,
+            21.5
+          ],
+          [
+            83.3,
+            17.7
+          ],
+          [
+            80.3,
+            13.1
+          ],
+          [
+            79.8,
+            9.5
+          ],
+          [
+            79.8,
+            6.9
+          ],
+          [
+            73.0,
+            8.0
+          ]
+        ]
+      }
+    }
+  ]
+}

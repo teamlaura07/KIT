@@ -7,6 +7,7 @@ import { MaritimeIncidentPage } from './pages/MaritimeIncidentPage';
 import { SonarAnalysisPage } from './pages/SonarAnalysisPage';
 import { SagarSurakshaFeedPage } from './pages/SagarSurakshaFeedPage';
 import { getHealth } from './services/api';
+import { AisProvider } from './context/AisContext';
 
 export default function App() {
   const [healthData, setHealthData] = useState(null);
@@ -55,60 +56,68 @@ export default function App() {
     );
   }
 
-  // 2. Render Full Application Console once authenticated with dedicated feature pages and flowing marquee bars
-  return (
-    <DashboardShell 
-      activeTab={activeTab}
-      onTabChange={setActiveTab}
-      operator={operator}
-      onSignOut={handleSignOut}
-    >
-      {/* Dynamic Dedicated Separate Page Routing */}
-      {activeTab === 'overview' && (
+  // 2. Render Tactical Overview / Landing Page directly
+  if (activeTab === 'overview') {
+    return (
+      <AisProvider>
         <SagarSurakshaOverviewPage 
           onNavigate={setActiveTab}
           operator={operator}
+          onSignOut={handleSignOut}
         />
-      )}
+      </AisProvider>
+    );
+  }
 
-      {activeTab === 'map' && (
-        <div className="w-full flex-1 flex flex-col p-3 sm:p-5 lg:p-6">
-          <SonarMapPage
-            detectionResult={detectionResult}
-            selectedTargetId={selectedTargetId}
-            onSelectTarget={setSelectedTargetId}
-            onSwitchToAnalysis={() => setActiveTab('analysis')}
+  // 3. Render Dedicated Feature Workspace inside DashboardShell
+  return (
+    <AisProvider>
+      <DashboardShell 
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        operator={operator}
+        onSignOut={handleSignOut}
+      >
+
+        {activeTab === 'map' && (
+          <div className="w-full flex-1 flex flex-col p-3 sm:p-5 lg:p-6">
+            <SonarMapPage
+              detectionResult={detectionResult}
+              selectedTargetId={selectedTargetId}
+              onSelectTarget={setSelectedTargetId}
+              onSwitchToAnalysis={() => setActiveTab('analysis')}
+            />
+          </div>
+        )}
+
+        {activeTab === 'incidents' && (
+          <div className="w-full flex-1 flex flex-col p-3 sm:p-5 lg:p-6">
+            <MaritimeIncidentPage 
+              onSwitchToSonar={() => setActiveTab('analysis')}
+            />
+          </div>
+        )}
+
+        {activeTab === 'analysis' && (
+          <div className="w-full flex-1 flex flex-col p-3 sm:p-5 lg:p-6">
+            <SonarAnalysisPage 
+              healthData={healthData}
+              detectionResult={detectionResult}
+              setDetectionResult={setDetectionResult}
+              selectedDetectionId={selectedTargetId}
+              setSelectedDetectionId={setSelectedTargetId}
+              onViewOnMap={handleViewOnMap}
+            />
+          </div>
+        )}
+
+        {activeTab === 'feed' && (
+          <SagarSurakshaFeedPage 
+            onNavigateToMap={() => setActiveTab('map')}
+            onNavigateToSonar={() => setActiveTab('analysis')}
           />
-        </div>
-      )}
-
-      {activeTab === 'incidents' && (
-        <div className="w-full flex-1 flex flex-col p-3 sm:p-5 lg:p-6">
-          <MaritimeIncidentPage 
-            onSwitchToSonar={() => setActiveTab('analysis')}
-          />
-        </div>
-      )}
-
-      {activeTab === 'analysis' && (
-        <div className="w-full flex-1 flex flex-col p-3 sm:p-5 lg:p-6">
-          <SonarAnalysisPage 
-            healthData={healthData}
-            detectionResult={detectionResult}
-            setDetectionResult={setDetectionResult}
-            selectedDetectionId={selectedTargetId}
-            setSelectedDetectionId={setSelectedTargetId}
-            onViewOnMap={handleViewOnMap}
-          />
-        </div>
-      )}
-
-      {activeTab === 'feed' && (
-        <SagarSurakshaFeedPage 
-          onNavigateToMap={() => setActiveTab('map')}
-          onNavigateToSonar={() => setActiveTab('analysis')}
-        />
-      )}
-    </DashboardShell>
+        )}
+      </DashboardShell>
+    </AisProvider>
   );
 }
