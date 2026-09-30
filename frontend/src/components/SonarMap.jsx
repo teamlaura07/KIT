@@ -16,6 +16,7 @@ import {
 } from '../services/aisDemoApi';
 import { useAis } from '../context/AisContext';
 import shippingLanesData from '../data/shipping-lanes.json';
+import { StaticDebrisLayer } from './StaticDebrisLayer';
 
 const SEVERITY_CONFIG = {
   EXTREME: {
@@ -149,10 +150,11 @@ export function SonarMap({
   const [enablePulsing, setEnablePulsing] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Live AIS & Sea Routes Layer States
+  // Live AIS, Sea Routes & NOAA Debris Layer States
   const [showLiveVessels, setShowLiveVessels] = useState(true);
   const [showVesselTracks, setShowVesselTracks] = useState(true);
   const [showSeaRoutes, setShowSeaRoutes] = useState(true);
+  const [forceDebrisFallback, setForceDebrisFallback] = useState(false);
   const [mapMoveTick, setMapMoveTick] = useState(0);
 
   // Global live AIS state (persists across page changes)
@@ -818,8 +820,8 @@ export function SonarMap({
           })}
         </div>
 
-        {/* Live AIS or Demo Status Badge in Toolbar */}
-        <div className="flex-shrink-0">
+        {/* Live AIS or Demo Status Badge & Live NOAA MDMAP Debris Badge */}
+        <div className="flex items-center space-x-2 flex-shrink-0">
           {aisMode === 'DEMO' ? (
             <div className="flex items-center space-x-2 bg-[#131d2e] border border-kesari/40 text-kesari px-3 py-1 rounded-full text-xs font-mono font-bold shadow-sm">
               <span className="w-2 h-2 rounded-full bg-kesari animate-pulse shadow-[0_0_6px_#f38b2a]" />
@@ -832,6 +834,26 @@ export function SonarMap({
               lastUpdate={aisLastUpdate}
             />
           )}
+
+          {/* Live NOAA MDMAP Marine Debris Overlay & Badge */}
+          <StaticDebrisLayer
+            map={mapInstanceRef.current}
+            visible={true}
+            forceFallback={forceDebrisFallback}
+          />
+
+          {/* Simulated API Failure Toggle Button for Verification */}
+          <button
+            onClick={() => setForceDebrisFallback((prev) => !prev)}
+            title="Toggle simulated API failure to verify staticDebris fallback"
+            className={`px-2.5 py-1 rounded-full border transition text-[11px] font-mono font-bold flex items-center space-x-1 whitespace-nowrap ${
+              forceDebrisFallback
+                ? 'bg-amber-950/80 border-amber-600/60 text-amber-300'
+                : 'bg-[#0e1726] border-border-tactical text-muted-slate hover:text-starlight'
+            }`}
+          >
+            <span>{forceDebrisFallback ? 'Simulate Live' : 'Simulate Failure'}</span>
+          </button>
         </div>
 
         {/* Feature Toggles & Basemap Switcher */}

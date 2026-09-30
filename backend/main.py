@@ -14,6 +14,7 @@ from backend.api.geospatial_routes import router as geospatial_router
 from backend.api.ais_routes import router as ais_router
 from backend.api.ais_demo_routes import router as ais_demo_router
 from backend.api.incident_routes import router as incident_router
+from backend.api.debris_routes import router as debris_router
 from backend.config import settings
 from backend.database import init_db
 from backend.services.ais_service import get_ais_service
@@ -78,6 +79,7 @@ app.include_router(geospatial_router, prefix=settings.API_PREFIX)
 app.include_router(ais_router, prefix=settings.API_PREFIX)
 app.include_router(ais_demo_router, prefix=settings.API_PREFIX)
 app.include_router(incident_router, prefix=settings.API_PREFIX)
+app.include_router(debris_router, prefix=settings.API_PREFIX)
 
 # Serve uploaded / processed static files
 app.mount("/static/uploads", StaticFiles(directory=str(settings.UPLOAD_DIR)), name="uploads")
